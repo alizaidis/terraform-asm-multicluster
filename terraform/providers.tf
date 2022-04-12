@@ -5,10 +5,14 @@ terraform {
       source  = "hashicorp/google-beta"
       version = "3.90.1"
     }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+      version = "2.10.0"
+    }
   }
 }
 provider "google-beta" {
   project = var.project_id
-  region  = var.region
-  zone    = var.zone
+  region  = var.region_1
+  zone    = var.zone_1
 }

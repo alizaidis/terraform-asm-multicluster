@@ -1,7 +1,7 @@
 # Module to create VPC for the GKE cluster
 module "asm-vpc" {
   source  = "terraform-google-modules/network/google"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   project_id   = var.project_id
   network_name = var.vpc
@@ -9,26 +9,38 @@ module "asm-vpc" {
 
   subnets = [
     {
-      subnet_name   = var.subnet_name
-      subnet_ip     = var.subnet_ip
-      subnet_region = var.region
-    },
+      subnet_name   = "${var.subnet_1_name}"
+      subnet_ip     = "${var.subnet_1_ip}"
+      subnet_region = "${var.region_1}"
+    }
+    ,
+    {
+      subnet_name   = "${var.subnet_2_name}"
+      subnet_ip     = "${var.subnet_2_ip}"
+      subnet_region = "${var.region_2}"
+    }
   ]
 
   secondary_ranges = {
-    "${var.subnet_name}" = [
+    "${var.subnet_1_name}" = [
       {
-        range_name    = "${var.subnet_name}-pod-cidr"
-        ip_cidr_range = var.pod_cidr
+        range_name    = "${var.subnet_1_name}-pod-cidr"
+        ip_cidr_range = "${var.pod_1_cidr}"
       },
       {
-        range_name    = "${var.subnet_name}-svc1-cidr"
-        ip_cidr_range = var.svc1_cidr
+        range_name    = "${var.subnet_1_name}-svc-cidr"
+        ip_cidr_range = "${var.svc_1_cidr}"
+      }
+    ]
+    "${var.subnet_2_name}" = [
+      {
+        range_name    = "${var.subnet_2_name}-pod-cidr"
+        ip_cidr_range = "${var.pod_2_cidr}"
       },
       {
-        range_name    = "${var.subnet_name}-svc2-cidr"
-        ip_cidr_range = var.svc2_cidr
-      },
+        range_name    = "${var.subnet_2_name}-svc-cidr"
+        ip_cidr_range = "${var.svc_2_cidr}"
+      }
     ]
   }
 
