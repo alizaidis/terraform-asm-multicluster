@@ -1,20 +1,12 @@
-#Printing out cluster attributes
-output "cluster_1_location" {
-  value = module.gke_2.location
+#Printing out VPC and Subnet details
+output "network_name" {
+  value = module.asm-vpc.network_name
 }
 
-output "cluster_1_name" {
-  value = module.gke_1.name
+output "subnet_names" {
+  value = module.asm-vpc.subnets_names
 }
 
-output "cluster_2_location" {
-  value = module.gke_2.location
+output "subnets_regions" {
+  value = module.asm-vpc.subnets_regions
 }
-
-output "cluster_2_name" {
-  value = module.gke_1.name
-}
-
-# output "master_authorized_networks" {
-#   value = module.gke.master_authorized_networks.cloudshell.cidr_block
-# }

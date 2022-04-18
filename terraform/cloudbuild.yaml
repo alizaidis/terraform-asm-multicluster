@@ -1,0 +1,28 @@
+timeout: 3600s
+substitutions:
+  _BUILD: "true"
+  _DESTROY: "false"
+tags:
+  - main
+steps:
+  - name: "gcr.io/kaniko-project/executor:v1.6.0"
+    id: "build-installer-image"
+    args:
+      - --destination=gcr.io/${PROJECT_ID}/platform-installer
+      - --cache=true
+      - --cache-ttl=12h
+  - name: gcr.io/${PROJECT_ID}/platform-installer
+    id: "gke-asm-terraform"
+    dir: "/terraform/asm/"
+    entrypoint: "bash"
+    args:
+      - "-xe"
+      - "-c"
+      - |
+        echo "project_id = \"${PROJECT_ID}\"" > terraform.tfvars
+        
+        terraform init -backend-config="bucket=${PROJECT_ID}"
+        terraform plan -out terraform.tfplan \
+          -backend-config="bucket=${PROJECT_ID}"
+        terraform apply -input=false -lock=false terraform.tfplan \ 
+          -backend-config="bucket=${PROJECT_ID}"

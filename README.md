@@ -1,7 +1,6 @@
-# terraform-asm-multicluster
-Example pattern showcasing a multi cluster implementation of Anthos Service Mesh with private GKE clusters using Terraform.
+# Installing Managed Anthos Service Mesh on multiple private GKE clusters using the ASM Terraform module.
 
-# Installing Anthos Service Mesh on GKE with ASM Terraform module.
+This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.google.com/service-mesh/docs/overview) with a managed control plane on two private [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview) (GKE) clusters using the [ASM Terraform module](https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/tree/master/modules/asm).
 
 ## Prerequistes 
 
@@ -11,16 +10,7 @@ Example pattern showcasing a multi cluster implementation of Anthos Service Mesh
 
 ## Deploy resources using Terraform.
 
-1. Define the environment variables and set project. Replace `YOUR_PROJECT_ID` with that of a fresh project you created for this tutorial. Set the values of `GKE_CHANNEL` and `ENABLE_CNI` according to your requirements.
-
-    ```
-    export PROJECT_ID=YOUR_PROJECT_ID
-    export GKE_CHANNEL="REGULAR"
-    export ENABLE_CNI="false"
-    gcloud config set project ${PROJECT_ID}
-    ```
-
-1. Create a working directory, clone this repo and switch to the appropriate branch
+1. Create a working directory, clone this repo and switch to the repo directory.
 
     ```bash
     mkdir ~/asm-tutorial && cd ~/asm-tutorial && export WORKDIR=$(pwd)
@@ -28,10 +18,27 @@ Example pattern showcasing a multi cluster implementation of Anthos Service Mesh
     cd terraform-asm-sample/terraform
     ```
 
+1. Export the `PROJECT_ID` environment variable; replace the value of `YOUR_PROJECT_ID` with that of a fresh project you created for this tutorial. Then set this as the active project in Cloud Shell and add a `terraform.tfvars` entry for the Project ID. Note that you can set the values of Terraform variables like `gke_channel` and `enable_cni` in the `variables.tf` file according to your requirements; for this example they are set as `REGULAR` and `true`. For details on configurable options, see documentation for the [ASM Terraform module](https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/tree/master/modules/asm). 
+
+    ```bash
+    export PROJECT_ID=YOUR_PROJECT_ID
+    gcloud config set project $PROJECT_ID
+    echo "project_id = \"$PROJECT_ID\"" > terraform.tfvars
+    ```
+
+
+1. Create a Google Cloud Storage bucket to host the Terraform state data. 
+
+    ```bash
+    gsutil mb -p ${PROJECT_ID} gs://${PROJECT_ID}-tfstate
+    gsutil versioning set on gs://${PROJECT_ID}-tfstate
+    envsubst < backend.tf.tmpl > backend.tf
+    ```
+
+
 1. Initialize, plan and apply Terraform to create VPC, Subnet, GKE cluster with private nodes and ASM. Type `yes` when Terraform apply asks to confirm.
 
     ```bash
-    envsubst < variables.tf.tmpl > variables.tf
     terraform init
     terraform plan
     terraform apply
@@ -39,16 +46,18 @@ Example pattern showcasing a multi cluster implementation of Anthos Service Mesh
 
 ## Verify successful ASM installation
 
-1. Verify that the GKE cluster membership to a Fleet was successful:
+1. Verify that the GKE clusters' membership to a Fleet was successful:
 
     ```bash
     gcloud container hub memberships list --project $PROJECT_ID
     ```
 
-1. Inspect GKE cluster to verify that ASM was installed correctly. Start by getting cluster credentials.
+1. Inspect GKE clusters to verify that ASM was installed correctly. Start by getting cluster credentials.
 
     ```bash
-    gcloud container clusters get-credentials "asm-cluster-1" --region "us-central1" --project $PROJECT_ID
+    gcloud container clusters get-credentials "asm-cluster-1" --region "us-west1" --project $PROJECT_ID
+
+    gcloud container clusters get-credentials "asm-cluster-2" --region "us-central1" --project $PROJECT_ID
     ```
 
 1. Inspect the status of controlplanerevision CustomResource. Note values of fields under `Conditions`, you should see that `Reason` is set to `Provisioned` and that the provisioning process has completed successfully.
@@ -155,7 +164,7 @@ Example pattern showcasing a multi cluster implementation of Anthos Service Mesh
 
 ## Clean up
 
-1. The easiest way to prevent continued billing for the resources that you created for this tutorial is to delete the project you created for the tutorial. Run the following command from Cloud Shell and enter `y` when asked to confirm.
+1. The easiest way to prevent continued billing for the resources that you created for this tutorial is to delete the project you created for the tutorial. Run the following commands from Cloud Shell:
 
    ```bash
     gcloud config unset project

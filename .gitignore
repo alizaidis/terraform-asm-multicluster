@@ -13,6 +13,11 @@ crash.log
 # version control.
 #
 # example.tfvars
+*.tfvars
+./terraform/terraform.tfvars
+
+#Ignore Terraform lock files
+.terraform.lock.hcl
 
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
@@ -28,5 +33,6 @@ override.tf.json
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
 
-# Include .lock.hcl to ignore lock files
-*.lock.hcl
+#Include backend.tf
+backend.tf
+ 
