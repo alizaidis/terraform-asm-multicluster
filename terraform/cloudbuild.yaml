@@ -22,7 +22,5 @@ steps:
         echo "project_id = \"${PROJECT_ID}\"" > terraform.tfvars
         
         terraform init -backend-config="bucket=${PROJECT_ID}"
-        terraform plan -out terraform.tfplan \
-          -backend-config="bucket=${PROJECT_ID}"
-        terraform apply -input=false -lock=false terraform.tfplan \ 
-          -backend-config="bucket=${PROJECT_ID}"
+        terraform plan -out terraform.tfplan
+        terraform apply -input=false -lock=false terraform.tfplan
