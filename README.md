@@ -8,6 +8,8 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
 
 2. It is recommended to start the tutorial in a fresh project since the easiest way to clean up once complete is to delete the project. See [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects) for more details.
 
+3. This tutorial uses Cloud Build to build source code from a GitHub repository, so you will need to authorize Cloud Build to use GitHub on your behalf before starting the tutorial. For instructions see [Building repositories from GitHub](https://cloud.google.com/build/docs/automating-builds/build-repos-from-github) and in the repository settings choose [this](https://github.com/alizaidis/terraform-asm-multicluster) repository and while WIP [this](https://github.com/alizaidis/terraform-asm-multicluster/tree/issue-1) branch.
+
 ## Deploy resources using Terraform.
 
 1. Create a working directory, clone this repo and switch to the appropriate directory.
@@ -15,7 +17,7 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
     ```bash
     mkdir ~/asm-tutorial && cd ~/asm-tutorial && export WORKDIR=$(pwd)
     git clone https://github.com/alizaidis/terraform-asm-multicluster.git
-    cd terraform-asm-sample && git checkout issue-1 && cd terraform
+    cd terraform-asm-multicluster && git checkout issue-1 && cd terraform
     ```
 
 1. Export the `PROJECT_ID` environment variable; replace the value of `YOUR_PROJECT_ID` with that of a fresh project you created for this tutorial. Then set this as the active project in Cloud Shell and add a `terraform.tfvars` entry for the Project ID. Note that you can set the values of Terraform variables like `gke_channel` and `enable_cni` in the `variables.tf` file according to your requirements; for this example they are set as `REGULAR` and `true`. For details on configurable options, see documentation for the [ASM Terraform module](https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/tree/master/modules/asm). 
@@ -35,7 +37,7 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
     ```
 
 
-1. Initialize, plan and apply Terraform to create VPC, Subnet, GKE cluster with private nodes and ASM. Type `yes` when Terraform apply asks to confirm.
+1. Initialize, plan and apply Terraform to create VPC, Subnets, Cloud Build private build pool. The GKE cluster with private nodes, Cloud NAT  related resources and the build trigger for the repository and ASM. Type `yes` when Terraform apply asks to confirm.
 
     ```bash
     terraform init -backend-config="bucket=${PROJECT_ID}-tfstate"

@@ -32,6 +32,16 @@ module "enabled_google_apis" {
   depends_on = [null_resource.previous]
 }
 
+resource "null_resource" "enable_cloudbuild" {
+
+  provisioner "local-exec" {
+    when    = create
+    command = "https://console.developers.google.com/apis/api/cloudbuild.googleapis.com/overview?project=304458894"
+  }
+
+  depends_on = [module.enabled_google_apis]
+}
+
 #Creating a VPC for the private GKE clusters and bastion VM
 module "asm-vpc" {
   source  = "terraform-google-modules/network/google"
@@ -91,21 +101,7 @@ module "asm-vpc" {
   depends_on = [module.enabled_google_apis]
 }
 
-# # GCE VM where the next steps in the guide will run from
-# module "iap_bastion" {
-#   source = "terraform-google-modules/bastion-host/google"
-
-#   project = var.project_id
-#   zone    = var.zone_1
-#   network = module.asm-vpc.network_name
-#   subnet  = "projects/${var.project_id}/regions/${var.region_1}/subnetworks/${var.subnet_1_name}"
-#   members = [
-#     "user:zaidiali@google.com",
-#   ]
-#   depends_on = [module.asm-vpc]
-# }
-
-# Firewall rule allowing
+# Firewall rule for Cloud Build worker range
 resource "google_compute_global_address" "build_worker_range" {
   name          = "worker-pool-range"
   purpose       = "VPC_PEERING"

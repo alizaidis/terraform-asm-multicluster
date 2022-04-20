@@ -88,3 +88,58 @@ module "workload_identity_2" {
   project_id          = var.project_id
   roles               = ["roles/owner"]
 }
+
+# Resource blocks for Cloud NAT related objects for private notes in the GKE clusters.
+resource "google_compute_router" "router_1" {
+  name    = "${var.region_1}-router"
+  region  = var.region_1
+  network = var.vpc
+}
+
+resource "google_compute_router" "router_2" {
+  name    = "${var.region_2}-router"
+  region  = var.region_2
+  network = var.vpc
+}
+
+resource "google_compute_address" "address_region_1" {
+  count  = 1
+  name   = "nat-ip-${var.region_1}-${count.index}"
+  region = var.region_1
+}
+
+resource "google_compute_address" "address_region_2" {
+  count  = 1
+  name   = "nat-ip-${var.region_2}-${count.index}"
+  region = var.region_2
+}
+
+resource "google_compute_router_nat" "nat_region_1" {
+  name   = "${var.region_1}-nat"
+  router = google_compute_router.router_1.name
+  region = google_compute_router.router_1.region
+
+  nat_ip_allocate_option = "MANUAL_ONLY"
+  nat_ips                = google_compute_address.address_region_1.*.self_link
+
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+  subnetwork {
+    name                    = "${var.subnet_1_name}"
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+}
+
+resource "google_compute_router_nat" "nat_region_2" {
+  name   = "${var.region_2}-nat"
+  router = google_compute_router.router_2.name
+  region = google_compute_router.router_2.region
+
+  nat_ip_allocate_option = "MANUAL_ONLY"
+  nat_ips                = google_compute_address.address_region_2.*.self_link
+
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+  subnetwork {
+    name                    = "${var.subnet_2_name}"
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+}
