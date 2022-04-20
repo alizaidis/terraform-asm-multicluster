@@ -23,3 +23,5 @@ steps:
         terraform init -backend-config="bucket=${PROJECT_ID}"
         terraform plan -out terraform.tfplan
         terraform apply -input=false -lock=false terraform.tfplan
+options:
+  logging: CLOUD_LOGGING_ONLY
