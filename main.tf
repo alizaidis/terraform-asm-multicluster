@@ -20,7 +20,7 @@ module "enabled_google_apis" {
 
   activate_apis = [
     "cloudbuild.googleapis.com",
-    "containerregistry.googleapis.com",
+    "artifactregistry.googleapis.com",
     "iap.googleapis.com",
     "servicenetworking.googleapis.com",
     "cloudapis.googleapis.com",
