@@ -32,16 +32,6 @@ module "enabled_google_apis" {
   depends_on = [null_resource.previous]
 }
 
-resource "null_resource" "enable_cloudbuild" {
-
-  provisioner "local-exec" {
-    when    = create
-    command = "https://console.developers.google.com/apis/api/cloudbuild.googleapis.com/overview?project=304458894"
-  }
-
-  depends_on = [module.enabled_google_apis]
-}
-
 #Creating a VPC for the private GKE clusters and bastion VM
 module "asm-vpc" {
   source  = "terraform-google-modules/network/google"
