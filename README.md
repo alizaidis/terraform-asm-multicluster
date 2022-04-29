@@ -8,7 +8,7 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
 
 2. It is recommended to start the tutorial in a fresh project since the easiest way to clean up once complete is to delete the project. See [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects) for more details.
 
-3. This tutorial uses Cloud Build to build source code from a GitHub repository, so you will need to authorize Cloud Build to use GitHub on your behalf before starting the tutorial. For instructions see [Building repositories from GitHub](https://cloud.google.com/build/docs/automating-builds/build-repos-from-github) and in the repository settings choose [this](https://github.com/alizaidis/terraform-asm-multicluster) repository and while WIP [this](https://github.com/alizaidis/terraform-asm-multicluster/tree/issue-1) branch.
+3. This tutorial uses Cloud Build to build source code from a GitHub repository, so you will need to authorize Cloud Build to use GitHub on your behalf before starting the tutorial. For instructions see [Building repositories from GitHub](https://cloud.google.com/build/docs/automating-builds/build-repos-from-github) and in the repository settings choose [this](https://github.com/alizaidis/terraform-asm-multicluster) repository and while WIP [this](https://github.com/alizaidis/terraform-asm-multicluster/tree/issue-1b) branch.
 
 ## Deploy resources using Terraform.
 
@@ -37,12 +37,18 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
     ```
 
 
-1. Initialize, plan and apply Terraform to create VPC, Subnets, Cloud Build private build pool. The GKE cluster with private nodes, Cloud NAT  related resources and the build trigger for the repository and ASM. Type `yes` when Terraform apply asks to confirm.
+1. Initialize, plan and apply Terraform to create VPC, Subnets, Cloud Build private build pool and other resources. Review the proposed changes, type `yes` when Terraform apply asks to confirm.
 
     ```bash
     terraform init -backend-config="bucket=${PROJECT_ID}-tfstate"
     terraform plan
     terraform apply
+    ```
+
+1. Once the Terraform apply is complete, kick off the Cloud Build job to run on the private build pool created in the previous step. This build creates the GKE clusters and installs Anthos Service Mesh related components.
+
+    ```bash
+    gcloud builds submit --region=us-west1 --worker-pool="projects/${PROJECT_ID}/locations/us-west1/workerPools/private-build-pool" --config cloudbuild.yaml .
     ```
 
 ## Verify successful ASM installation

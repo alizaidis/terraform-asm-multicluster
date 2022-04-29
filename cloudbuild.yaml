@@ -1,9 +1,4 @@
 timeout: 3600s
-substitutions:
-  _BUILD: "true"
-  _DESTROY: "false"
-tags:
-  - main
 steps:
   - name: "gcr.io/kaniko-project/executor:v1.6.0"
     id: "build-installer-image"
@@ -13,14 +8,13 @@ steps:
       - --cache-ttl=12h
   - name: "us-west1-docker.pkg.dev/${PROJECT_ID}/platform-installer/installer"
     id: "gke-asm-terraform"
-    dir: "/asm/"
+    dir: asm
     entrypoint: "bash"
     args:
       - "-xe"
       - "-c"
-      - |
-        echo "project_id = \"${PROJECT_ID}\"" > terraform.tfvars
-        terraform init -backend-config="bucket=${PROJECT_ID}"
+      - echo "project_id = \"${PROJECT_ID}\"" > terraform.tfvars
+        terraform init -backend-config="bucket=${PROJECT_ID}-tfstate"
         terraform plan -out terraform.tfplan
         terraform apply -input=false -lock=false terraform.tfplan
 options:

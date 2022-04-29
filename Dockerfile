@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM alpine:3.15
+FROM alpine:3.15.4
 
 RUN apk --update add --no-cache \
 coreutils \
