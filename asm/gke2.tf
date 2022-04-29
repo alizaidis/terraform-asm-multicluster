@@ -1,4 +1,4 @@
-#Module to create GKE cluster and enable APIs
+# Manifest to create GKE cluster and install ASM
 
 # google_client_config and kubernetes provider must be explicitly specified like the following for every cluster.
 
