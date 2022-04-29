@@ -12,6 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Resources for Cloud Build private pool
+resource "google_compute_global_address" "build_worker_range" {
+  name          = "worker-pool-range"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = module.asmvpc.network_name
+}
+
+resource "google_service_networking_connection" "worker_pool_conn" {
+  network                 = module.asmvpc.network_id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.build_worker_range.name]
+  depends_on              = [module.enabled_google_apis]
+}
+
+resource "google_cloudbuild_worker_pool" "private-build-pool" {
+  name = "private-build-pool"
+  location = "${var.region_1}"
+  worker_config {
+    disk_size_gb = 100
+    machine_type = "e2-standard-4"
+    no_external_ip = false
+  }
+  network_config {
+    peered_network = module.asmvpc.network_id
+  }
+  depends_on = [google_service_networking_connection.worker_pool_conn]
+}
+
 resource "google_cloudbuild_trigger" "service-account-trigger" {
   source_to_build {
     uri       = "https://github.com/alizaidis/terraform-asm-multicluster"
