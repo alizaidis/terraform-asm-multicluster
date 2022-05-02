@@ -12,12 +12,12 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
 
 ## Deploy resources using Terraform.
 
-1. Create a working directory, clone this repo and switch to the appropriate directory.
+1. Create a working directory, clone this repo and switch to the appropriate branch.
 
     ```bash
     mkdir ~/asm-tutorial && cd ~/asm-tutorial && export WORKDIR=$(pwd)
     git clone https://github.com/alizaidis/terraform-asm-multicluster.git
-    cd terraform-asm-multicluster && git checkout issue-1 && cd terraform
+    cd terraform-asm-multicluster && git checkout issue-1b
     ```
 
 1. Export the `PROJECT_ID` environment variable; replace the value of `YOUR_PROJECT_ID` with that of a fresh project you created for this tutorial. Then set this as the active project in Cloud Shell and add a `terraform.tfvars` entry for the Project ID. Note that you can set the values of Terraform variables like `gke_channel` and `enable_cni` in the `variables.tf` file according to your requirements; for this example they are set as `REGULAR` and `true`. For details on configurable options, see documentation for the [ASM Terraform module](https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/tree/master/modules/asm). 
