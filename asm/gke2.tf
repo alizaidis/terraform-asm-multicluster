@@ -74,7 +74,8 @@ resource "google_gke_hub_membership" "membership_2" {
 }
 
 module "asm_2" { 
-  source = "git::https://github.com/terraform-google-modules/terraform-google-kubernetes-engine.git//modules/asm?ref=v20.0.0"  
+  source = "terraform-google-modules/kubernetes-engine/google//modules/asm"
+  version = "20.0.0"
   cluster_name     = module.gke_2.name
   cluster_location = var.region_2
   project_id = var.project_id

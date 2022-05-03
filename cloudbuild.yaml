@@ -22,8 +22,8 @@ steps:
       - --cache-ttl=12h
   - name: "us-west1-docker.pkg.dev/${PROJECT_ID}/platform-installer/installer"
     id: "gke-asm-terraform"
-    dir: /asm/
-    entrypoint: "bash"
+    dir: "asm"
+    entrypoint: "ash"
     args:
       - "-xe"
       - "-c"
