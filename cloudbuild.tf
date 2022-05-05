@@ -83,6 +83,7 @@ resource "google_project_iam_member" "cloudbuild_sa_owner" {
   project = var.project_id
   role    = "roles/owner"
   member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+  depends_on = [module.enabled_google_apis]
 }
 
 resource "google_service_account" "cloudbuild_trigger_sa" {

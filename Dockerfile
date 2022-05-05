@@ -34,3 +34,9 @@ RUN echo "INSTALL TERRAFORM v${TERRAFORM_VERSION}" \
 && chmod +x terraform \
 && mv terraform /usr/local/bin \
 && rm -rf terraform.zip
+
+# Install additional tools
+RUN gcloud components install \
+kubectl \
+&& rm -rf $(find google-cloud-sdk/ -regex ".*/__pycache__") \
+&& rm -rf google-cloud-sdk/.install/.backup
