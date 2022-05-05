@@ -16,9 +16,9 @@
 
 # google_client_config and kubernetes provider must be explicitly specified like the following for every cluster.
 
-data "google_client_config" "default" {}
-
 ## GKE 1
+
+data "google_client_config" "gke_1_config" {}
 
 provider "kubernetes" {
   alias                  = "gke_1"
@@ -29,7 +29,7 @@ provider "kubernetes" {
 
 module "gke_1" {
   source                     = "terraform-google-modules/kubernetes-engine/google//modules/beta-private-cluster"
-  version                    = "~> 16.0"
+  version                    = "20.0.0"
   project_id                 = var.project_id
   name                       = "asm-cluster-1"
   release_channel            = "${var.gke_channel}"
@@ -48,7 +48,7 @@ module "gke_1" {
 
 module "workload_identity_1" {
   source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
-  version             = "~> 16.0.1"
+  version             = "20.0.0"
   gcp_sa_name         = "cnrmsa"
   cluster_name        = module.gke_1.name
   name                = "cnrm-controller-manager"
@@ -60,7 +60,6 @@ module "workload_identity_1" {
   roles               = ["roles/owner"]
 }
 
-#Module to create Fleet memebership and install ASM on GKE cluster
 resource "google_gke_hub_membership" "membership_1" {
   provider      = google-beta
   

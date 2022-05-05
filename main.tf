@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#Enabling Services
 resource "null_resource" "previous" {}
 
 resource "time_sleep" "wait_120_seconds" {
@@ -33,7 +32,7 @@ resource "null_resource" "enable_mesh" {
 
 module "enabled_google_apis" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
-  version = "12.0.0"
+  version = "13.0.0"
 
   project_id                  = var.project_id
   disable_services_on_destroy = false
@@ -41,7 +40,6 @@ module "enabled_google_apis" {
   activate_apis = [
     "cloudbuild.googleapis.com",
     "artifactregistry.googleapis.com",
-    "iap.googleapis.com",
     "servicenetworking.googleapis.com",
     "cloudapis.googleapis.com",
     "compute.googleapis.com",
@@ -52,7 +50,6 @@ module "enabled_google_apis" {
   depends_on = [null_resource.previous]
 }
 
-#Creating a VPC for the private GKE clusters and bastion VM
 module "asmvpc" {
   source  = "terraform-google-modules/network/google"
   version = "5.0"
@@ -113,7 +110,6 @@ module "asmvpc" {
   depends_on = [module.enabled_google_apis]
 }
 
-# Cloud NAT related resources to provide egress traffic path from regions
 
 resource "google_compute_router" "router_1" {
   name    = "${var.region_1}-router"

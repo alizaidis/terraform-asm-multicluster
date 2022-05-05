@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Resources for Cloud Build private pool
+data "google_project" "project" {
+}
+
 resource "google_compute_global_address" "build_worker_range" {
   name          = "worker-pool-range"
   purpose       = "VPC_PEERING"
@@ -45,7 +47,7 @@ resource "google_cloudbuild_worker_pool" "private-build-pool" {
 resource "google_cloudbuild_trigger" "service-account-trigger" {
   source_to_build {
     uri       = "https://github.com/alizaidis/terraform-asm-multicluster"
-    ref       = "refs/heads/issue-1"
+    ref       = "refs/heads/main"
     repo_type = "GITHUB"
   }
   build {
@@ -69,7 +71,7 @@ resource "google_cloudbuild_trigger" "service-account-trigger" {
         logging = "STACKDRIVER_ONLY"
     }
   }
-  service_account = google_service_account.cloudbuild_service_account.id
+  service_account = google_service_account.cloudbuild_trigger_sa.id
   project = var.project_id
   depends_on = [
     google_project_iam_member.act_as,
@@ -77,7 +79,13 @@ resource "google_cloudbuild_trigger" "service-account-trigger" {
   ]
 }
 
-resource "google_service_account" "cloudbuild_service_account" {
+resource "google_project_iam_member" "cloudbuild_sa_owner" {
+  project = var.project_id
+  role    = "roles/owner"
+  member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+}
+
+resource "google_service_account" "cloudbuild_trigger_sa" {
   account_id = "terraform-cloud-build"
   project = var.project_id
 }
@@ -85,13 +93,19 @@ resource "google_service_account" "cloudbuild_service_account" {
 resource "google_project_iam_member" "act_as" {
   project = var.project_id
   role    = "roles/iam.serviceAccountUser"
-  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+  member  = "serviceAccount:${google_service_account.cloudbuild_trigger_sa.email}"
 }
 
 resource "google_project_iam_member" "logs_writer" {
   project = var.project_id
   role    = "roles/logging.logWriter"
-  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+  member  = "serviceAccount:${google_service_account.cloudbuild_trigger_sa.email}"
+}
+
+resource "google_project_iam_member" "cloudbuild_trigger_sa_owner" {
+  project = var.project_id
+  role    = "roles/owner"
+  member  = "serviceAccount:${google_service_account.cloudbuild_trigger_sa.email}"
 }
 
 resource "google_artifact_registry_repository" "platform-installer" {
@@ -110,5 +124,5 @@ resource "google_artifact_registry_repository_iam_member" "cloud-build-member" {
   location = google_artifact_registry_repository.platform-installer.location
   repository = google_artifact_registry_repository.platform-installer.name
   role   = "roles/artifactregistry.writer"
-  member = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+  member = "serviceAccount:${google_service_account.cloudbuild_trigger_sa.email}"
 }
