@@ -23,7 +23,7 @@ data "google_client_config" "gke_1_config" {}
 provider "kubernetes" {
   alias                  = "gke_1"
   host                   = "https://${module.gke_1.endpoint}"
-  token                  = data.google_client_config.default.access_token
+  token                  = data.google_client_config.gke_1_config.access_token
   cluster_ca_certificate = base64decode(module.gke_1.ca_certificate)
 }
 
@@ -79,5 +79,8 @@ module "asm_1" {
   cluster_location = var.region_1
   project_id = var.project_id
   enable_cni = var.enable_cni
+  providers = {
+    kubernetes = kubernetes.gke_1
+  }
 
 }
