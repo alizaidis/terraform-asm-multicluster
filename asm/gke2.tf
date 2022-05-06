@@ -23,7 +23,7 @@ data "google_client_config" "gke_2_config" {}
 provider "kubernetes" {
   alias                  = "gke_2"
   host                   = "https://${module.gke_2.endpoint}"
-  token                  = data.google_client_config.default.access_token
+  token                  = data.google_client_config.gke_2_config.access_token
   cluster_ca_certificate = base64decode(module.gke_2.ca_certificate)
 }
 
