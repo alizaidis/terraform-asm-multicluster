@@ -79,5 +79,8 @@ module "asm_2" {
   cluster_location = var.region_2
   project_id = var.project_id
   enable_cni = var.enable_cni
+  providers = {
+    kubernetes = kubernetes.gke_2
+  }
 
 }
