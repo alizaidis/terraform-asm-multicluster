@@ -49,7 +49,7 @@ module "gke_2" {
 module "workload_identity_2" {
   source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   version             = "20.0.0"
-  gcp_sa_name         = "cnrmsa"
+  gcp_sa_name         = "cnrmsa2"
   cluster_name        = module.gke_2.name
   name                = "cnrm-controller-manager"
   location            = var.zone_2
