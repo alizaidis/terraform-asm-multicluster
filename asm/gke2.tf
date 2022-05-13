@@ -78,6 +78,8 @@ module "asm_2" {
   cluster_name     = module.gke_2.name
   cluster_location = var.region_2
   project_id = var.project_id
+  enable_mesh_feature = true
+  enable_fleet_registration = true
   enable_cni = var.enable_cni
   providers = {
     kubernetes = kubernetes.gke_2

@@ -50,7 +50,7 @@ variable "vpc" {
 variable "subnet_1_name" {
   type        = string
   description = "The subnet where cluster 1 will be created"
-  default = "subnet-central"
+  default = "subnet-west"
 }
 
 variable "subnet_1_ip" {
@@ -73,7 +73,7 @@ variable "svc_1_cidr" {
 variable "subnet_2_name" {
   type        = string
   description = "The subnet where cluster 2 will be created"
-  default = "subnet-west"
+  default = "subnet-central"
 }
 
 variable "subnet_2_ip" {
