@@ -61,13 +61,13 @@ variable "subnet_1_ip" {
 variable "pod_1_cidr" {
   type        = string
   description = "CIDR range for Pods"
-  default = "10.76.0.0/14"
+  default = "10.80.0.0/14"
 }
 
 variable "svc_1_cidr" {
   type        = string
   description = "CIDR range for services"
-  default = "10.80.0.0/20"
+  default = "10.76.0.0/20"
 }
 
 variable "subnet_2_name" {
@@ -84,11 +84,11 @@ variable "subnet_2_ip" {
 variable "pod_2_cidr" {
   type        = string
   description = "CIDR range for Pods"
-  default = "10.12.0.0/14"
+  default = "10.16.0.0/14"
 }
 
 variable "svc_2_cidr" {
   type        = string
   description = "CIDR range for services"
-  default = "10.16.0.0/20"
+  default = "10.12.0.0/20"
 }

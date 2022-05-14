@@ -13,7 +13,7 @@
 # limitations under the License.
 
 output "cluster_1_location" {
-  value = module.gke_2.location
+  value = module.gke_1.location
 }
 
 output "cluster_1_name" {
@@ -25,5 +25,5 @@ output "cluster_2_location" {
 }
 
 output "cluster_2_name" {
-  value = module.gke_1.name
+  value = module.gke_2.name
 }
