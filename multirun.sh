@@ -1,9 +1,8 @@
 echo "Starting a fresh run on project: $1 in ~/run/$1/"
 export PROJECT_ID=$1
-cd ~/run/
-mkdir $1 && cd $1
+mkdir ~/run/$1 && cd ~/run/$1
 git clone https://github.com/alizaidis/terraform-asm-multicluster.git
-cd terraform-asm-multicluster
+cd terraform-asm-multicluster && git checkout issue-2
 gcloud config set project $PROJECT_ID
 echo "project_id = \"$PROJECT_ID\"" > terraform.tfvars
 gsutil mb -p ${PROJECT_ID} gs://${PROJECT_ID}-tfstate
