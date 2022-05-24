@@ -52,14 +52,20 @@ module "gke_1" {
   master_ipv4_cidr_block     = "172.16.0.0/28"
 }
 
+resource "google_service_account" "wi_gke_1" {
+  account_id = "wi-gke-1"
+  project    = var.project_id
+}
+
 module "workload_identity_1" {
   source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   version             = "20.0.0"
-  gcp_sa_name         = "cnrmsa1"
   cluster_name        = module.gke_1.name
-  name                = "cnrm-controller-manager"
+  name                = "gke-1-workload-id"
   location            = var.region_1
-  use_existing_k8s_sa = true    
+  use_existing_gcp_sa = true
+  gcp_sa_name         = "wi-gke-1"
+  use_existing_k8s_sa = false    
   annotate_k8s_sa     = true
   namespace           = "cnrm-system"
   project_id          = var.project_id

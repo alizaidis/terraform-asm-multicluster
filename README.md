@@ -22,7 +22,6 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
 
    ```bash
     export PROJECT_ID=YOUR_PROJECT_ID
-    export REPO=https://github.com/alizaidis/terraform-asm-multicluster
     export PROJECT_NUM=$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')
     export TF_CLOUDBUILD_SA="${PROJECT_NUM}@cloudbuild.gserviceaccount.com"
 
