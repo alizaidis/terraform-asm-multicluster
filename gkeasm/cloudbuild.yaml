@@ -20,21 +20,11 @@ steps:
       - --destination=us-west1-docker.pkg.dev/${PROJECT_ID}/platform-installer/installer
       - --cache=true
       - --cache-ttl=12h
-  - name: "gcr.io/cloud-builders/gcloud"
-    id: "gcs"
-    waitFor: ["-"]
-    entrypoint: "bash"
-    args:
-      - "-xe"
-      - "-c"
-      - |
-        [[ $(gsutil ls | grep "gs://${PROJECT_ID}-tfstate/") ]] || \
-        gsutil mb -p ${PROJECT_ID} gs://${PROJECT_ID}-tfstate && \
-        [[ $(gsutil versioning get gs://${PROJECT_ID}-tfstate | grep Enabled) ]] || \
-        gsutil versioning set on gs://${PROJECT_ID}-tfstate
   - name: "us-west1-docker.pkg.dev/${PROJECT_ID}/platform-installer/installer"
-    id: "vpc"
-    dir: "vpc"
+    id: "gke_1"
+    dir: "gke_1"
+    waitFor:
+    - "build-installer-image"
     entrypoint: "ash"
     args:
       - "-xe"
@@ -45,15 +35,18 @@ steps:
         terraform plan -out terraform.tfplan
         terraform apply -input=false -lock=false terraform.tfplan
   - name: "us-west1-docker.pkg.dev/${PROJECT_ID}/platform-installer/installer"
-    id: "gkeasm"
-    dir: "gkeasm"
+    id: "gke_2"
+    dir: "gke_2"
     waitFor:
-    - "vpc"
+    - "build-installer-image"
     entrypoint: "ash"
     args:
       - "-xe"
       - "-c"
       - |
-        gcloud builds submit --region=us-west1 --worker-pool="projects/${PROJECT_ID}/locations/us-west1/workerPools/private-build-pool" --config cloudbuild.yaml .
+        echo "project_id = \"${PROJECT_ID}\"" > terraform.tfvars
+        terraform init -backend-config="bucket=${PROJECT_ID}-tfstate"
+        terraform plan -out terraform.tfplan
+        terraform apply -input=false -lock=false terraform.tfplan
 options:
   logging: CLOUD_LOGGING_ONLY

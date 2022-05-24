@@ -8,8 +8,6 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
 
 2. It is recommended to start the tutorial in a fresh project since the easiest way to clean up once complete is to delete the project. See [here](https://cloud.google.com/resource-manager/docs/creating-managing-projects) for more details.
 
-3. This tutorial uses Cloud Build to build source code from a GitHub repository, so you will need to authorize Cloud Build to use GitHub on your behalf before starting the tutorial. For instructions see [Building repositories from GitHub](https://cloud.google.com/build/docs/automating-builds/build-repos-from-github) and in the repository settings choose [this](https://github.com/alizaidis/terraform-asm-multicluster) repository.
-
 ## Deploy resources using Terraform.
 
 1. Create a working directory, clone this repo and switch to the appropriate branch.
@@ -17,38 +15,37 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
     ```bash
     mkdir ~/asm-tutorial && cd ~/asm-tutorial && export WORKDIR=$(pwd)
     git clone https://github.com/alizaidis/terraform-asm-multicluster.git
-    cd terraform-asm-multicluster
+    cd terraform-asm-multicluster && git checkout issue-3
     ```
 
-1. Export the `PROJECT_ID` environment variable; replace the value of `YOUR_PROJECT_ID` with that of a fresh project you created for this tutorial. Then set this as the active project in Cloud Shell and add a `terraform.tfvars` entry for the Project ID. Note that you can set the values of Terraform variables like `gke_channel` and `enable_cni` in the `variables.tf` file according to your requirements; for this example they are set as `REGULAR` and `true`. For details on configurable options, see documentation for the [ASM Terraform module](https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/tree/master/modules/asm). 
+1. Export the `PROJECT_ID` environment variable; replace the value of `YOUR_PROJECT_ID` with that of a fresh project you created for this tutorial. The rest of this step enables the required APIs, creates an IAM policy binding for the Cloud Build service account, creates an Artifact Registry to host the Cloud Build container images and submit a Cloud Build job to create the required Google Cloud resources.
 
-    ```bash
+   ```bash
     export PROJECT_ID=YOUR_PROJECT_ID
-    gcloud config set project $PROJECT_ID
-    echo "project_id = \"$PROJECT_ID\"" > terraform.tfvars
-    ```
+    export REPO=https://github.com/alizaidis/terraform-asm-multicluster
+    export PROJECT_NUM=$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')
+    export TF_CLOUDBUILD_SA="${PROJECT_NUM}@cloudbuild.gserviceaccount.com"
 
+    gcloud config set project "${PROJECT_ID}"
 
-1. Create a Google Cloud Storage bucket to host the Terraform state data. 
+    gcloud --project="${PROJECT_ID}" services enable \
+    cloudapis.googleapis.com \
+    compute.googleapis.com \
+    cloudbuild.googleapis.com \
+    artifactregistry.googleapis.com \
+    servicenetworking.googleapis.com \
+    anthos.googleapis.com \
+    mesh.googleapis.com \
+    cloudresourcemanager.googleapis.com
 
-    ```bash
-    gsutil mb -p ${PROJECT_ID} gs://${PROJECT_ID}-tfstate
-    gsutil versioning set on gs://${PROJECT_ID}-tfstate
-    ```
+    gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+        --member serviceAccount:"${TF_CLOUDBUILD_SA}" \
+        --role roles/owner
 
+    gcloud artifacts repositories create platform-installer --repository-format=docker --location=us-west1 --description="Repo for platform installer container images built by Cloud Build." 
+    
+    gcloud builds submit --region=us-west1 --config cloudbuild.yaml .
 
-1. Initialize, plan and apply Terraform to create VPC, Subnets, Cloud Build private build pool and other resources. Review the proposed changes, type `yes` when Terraform apply asks to confirm.
-
-    ```bash
-    terraform init -backend-config="bucket=${PROJECT_ID}-tfstate"
-    terraform plan
-    terraform apply
-    ```
-
-1. Once the Terraform apply is complete, kick off the Cloud Build job to run on the private build pool created in the previous step. This build creates the GKE clusters and installs Anthos Service Mesh related components.
-
-    ```bash
-    gcloud builds submit --region=us-west1 --worker-pool="projects/${PROJECT_ID}/locations/us-west1/workerPools/private-build-pool" --config cloudbuild.yaml .
     ```
 
 ## Verify successful ASM installation

@@ -12,8 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-terraform {
-  backend "gcs"{
-    prefix      = "gkeasm"
-  }
+output "cluster_1_location" {
+  value = module.gke_1.location
+}
+
+output "cluster_1_name" {
+  value = module.gke_1.name
+}
+
+output "workload_identity_1_email" {
+  description = "workload_identity_1 GCP service account email."
+  value       = module.workload_identity_1.gcp_service_account.email
+}
+
+output "workload_identity_1_ksa_name" {
+  description = "workload_identity_1 K8S SA name"
+  value       = module.workload_identity_1.k8s_service_account_name
 }

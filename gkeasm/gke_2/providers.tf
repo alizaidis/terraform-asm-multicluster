@@ -13,7 +13,30 @@
 # limitations under the License.
 
 terraform {
-  backend "gcs"{
-    prefix      = "vpcsvc"
+  required_providers {
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "4.20.0"
+    }
+    google = {
+      source  = "hashicorp/google"
+      version = "4.20.0"
+    }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+      version = "2.11.0"
+    }
   }
+}
+
+provider "google-beta" {
+  project = var.project_id
+  region  = var.region_1
+  zone    = var.zone_1
+}
+
+provider "google" {
+  project = var.project_id
+  region  = var.region_1
+  zone    = var.zone_1
 }

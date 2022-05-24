@@ -93,6 +93,16 @@ variable "svc_2_cidr" {
   default = "10.16.0.0/20"
 }
 
+variable "gke_1_name" {
+  type = string
+  default = "asm-cluster-1"
+}
+
+variable "gke_2_name" {
+  type = string
+  default = "asm-cluster-2"
+}
+
 variable "gke_channel" {
   type = string
   default = "REGULAR"

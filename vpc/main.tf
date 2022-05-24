@@ -12,44 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "null_resource" "previous" {}
-
-resource "time_sleep" "wait_120_seconds" {
-  depends_on = [null_resource.previous]
-
-  create_duration = "120s"
-}
-
-resource "null_resource" "enable_mesh" {
-
-  provisioner "local-exec" {
-    when    = create
-    command = "echo y | gcloud container hub mesh enable --project ${var.project_id}"
-  }
-
-  depends_on = [module.enabled_google_apis]
-}
-
-module "enabled_google_apis" {
-  source  = "terraform-google-modules/project-factory/google//modules/project_services"
-  version = "13.0.0"
-
-  project_id                  = var.project_id
-  disable_services_on_destroy = false
-
-  activate_apis = [
-    "cloudbuild.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "servicenetworking.googleapis.com",
-    "cloudapis.googleapis.com",
-    "compute.googleapis.com",
-    "anthos.googleapis.com",
-    "mesh.googleapis.com",
-    "cloudresourcemanager.googleapis.com"
-  ]
-  depends_on = [null_resource.previous]
-}
-
 module "asmvpc" {
   source  = "terraform-google-modules/network/google"
   version = "5.0"
@@ -107,7 +69,6 @@ module "asmvpc" {
       ports    = ["0-65535"]
     }]
   }]
-  depends_on = [module.enabled_google_apis]
 }
 
 
@@ -183,4 +144,12 @@ resource "google_compute_router_nat" "nat_region_2" {
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
   depends_on = [module.asmvpc]
+}
+
+resource "null_resource" "enable_mesh" {
+
+  provisioner "local-exec" {
+    when    = create
+    command = "echo y | gcloud container hub mesh enable --project ${var.project_id}"
+  }
 }
