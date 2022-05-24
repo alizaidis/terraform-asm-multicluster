@@ -60,16 +60,17 @@ resource "google_service_account" "wi_gke_2" {
 module "workload_identity_2" {
   source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   version             = "20.0.0"
+  name                = google_service_account.wi_gke_2.account_id
+  gcp_sa_name         = google_service_account.wi_gke_2.account_id
   cluster_name        = module.gke_2.name
-  name                = "gke-2-workload-id"
   location            = var.region_2
   use_existing_gcp_sa = true
-  gcp_sa_name         = "wi-gke-2"
   use_existing_k8s_sa = false    
   annotate_k8s_sa     = true
   namespace           = "cnrm-system"
   project_id          = var.project_id
   roles               = ["roles/owner"]
+  depends_on = [google_service_account.wi_gke_2]
 }
 
 resource "google_gke_hub_membership" "membership_2" {
