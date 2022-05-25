@@ -14,6 +14,6 @@
 
 terraform {
   backend "gcs"{
-    prefix      = "gke2"
+    prefix      = "gke"
   }
 }

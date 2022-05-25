@@ -16,6 +16,56 @@
 
 # google_client_config and kubernetes provider must be explicitly specified like the following for every cluster.
 
+## GKE 1
+
+data "google_client_config" "gke_1_config" {}
+
+provider "kubernetes" {
+  alias                  = "gke_1"
+  host                   = "https://${module.gke_1.endpoint}"
+  token                  = data.google_client_config.gke_1_config.access_token
+  cluster_ca_certificate = base64decode(module.gke_1.ca_certificate)
+}
+
+module "gke_1" {
+  source                     = "terraform-google-modules/kubernetes-engine/google//modules/beta-private-cluster"
+  version                    = "20.0.0"
+  project_id                 = var.project_id
+  name                       = var.gke_1_name
+  release_channel            = var.gke_channel
+  region                     = var.region_1
+  zones                      = [var.zone_1]
+  initial_node_count         = 4
+  service_account            = "create"
+  network                    = var.vpc
+  subnetwork                 = var.subnet_1_name
+  ip_range_pods              = "${var.subnet_1_name}-pod-cidr"
+  ip_range_services          = "${var.subnet_1_name}-svc-cidr"
+  config_connector           = true
+  enable_private_endpoint    = true
+  master_authorized_networks = [
+    {
+      cidr_block   = "10.0.0.0/8"
+      display_name = "vpc"
+    },
+  ]
+  enable_private_nodes       = true
+  master_ipv4_cidr_block     = "172.16.0.0/28"
+}
+
+resource "google_gke_hub_membership" "membership_1" {
+  provider      = google-beta
+  
+  membership_id = "membership-hub-${module.gke_1.name}"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${module.gke_1.cluster_id}"
+    }
+  }
+  depends_on = [module.gke_1.name] 
+}
+
+
 ## GKE 2
 
 data "google_client_config" "gke_2_config" {}
@@ -53,34 +103,6 @@ module "gke_2" {
   master_ipv4_cidr_block     = "172.17.0.0/28"
 }
 
-resource "google_service_account" "wi_gke_2" {
-  account_id = "gke2wi"
-  project    = var.project_id
-}
-
-resource "kubernetes_namespace" "asm_tutorial_ns" {
-  metadata {
-    name = "asm-tutorial"
-  }
-  depends_on = [module.gke_2.name]
-}
-
-module "workload_identity_2" {
-  source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
-  version             = "20.0.0"
-  name                = google_service_account.wi_gke_2.account_id
-  gcp_sa_name         = google_service_account.wi_gke_2.account_id
-  cluster_name        = module.gke_2.name
-  location            = var.region_2
-  use_existing_gcp_sa = true
-  use_existing_k8s_sa = false    
-  annotate_k8s_sa     = true
-  namespace           = kubernetes_namespace.asm_tutorial_ns.metadata.0.name
-  project_id          = var.project_id
-  roles               = ["roles/owner"]
-  depends_on = [google_service_account.wi_gke_2]
-}
-
 resource "google_gke_hub_membership" "membership_2" {
   provider      = google-beta
   
@@ -91,16 +113,4 @@ resource "google_gke_hub_membership" "membership_2" {
     }
   }
   depends_on = [module.gke_2.name] 
-}
-
-module "asm_2" { 
-  source = "terraform-google-modules/kubernetes-engine/google//modules/asm"
-  version = "20.0.0"
-  cluster_name     = var.gke_2_name
-  cluster_location = var.region_2
-  project_id = var.project_id
-  enable_cni = var.enable_cni
-  providers = {
-    kubernetes = kubernetes.gke_2
-  }
 }

@@ -21,24 +21,7 @@ steps:
       - --cache=true
       - --cache-ttl=12h
   - name: "us-west1-docker.pkg.dev/${PROJECT_ID}/platform-installer/installer"
-    id: "gke_1"
-    dir: "gke_1"
-    waitFor:
-    - "build-installer-image"
-    entrypoint: "ash"
-    args:
-      - "-xe"
-      - "-c"
-      - |
-        echo "project_id = \"${PROJECT_ID}\"" > terraform.tfvars
-        terraform init -backend-config="bucket=${PROJECT_ID}-tfstate"
-        terraform plan -out terraform.tfplan
-        terraform apply -input=false -lock=false terraform.tfplan
-  - name: "us-west1-docker.pkg.dev/${PROJECT_ID}/platform-installer/installer"
-    id: "gke_2"
-    dir: "gke_2"
-    waitFor:
-    - "build-installer-image"
+    id: "gke"
     entrypoint: "ash"
     args:
       - "-xe"

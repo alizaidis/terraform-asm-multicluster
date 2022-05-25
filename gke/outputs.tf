@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+output "cluster_1_location" {
+  value = module.gke_1.location
+}
+
+output "cluster_1_name" {
+  value = module.gke_1.name
+}
+
 output "cluster_2_location" {
   value = module.gke_2.location
 }
@@ -19,13 +27,3 @@ output "cluster_2_location" {
 output "cluster_2_name" {
   value = module.gke_2.name
 }
-
-# output "workload_identity_2_email" {
-#   description = "workload_identity_2 GCP service account email."
-#   value       = module.workload_identity_2.gcp_service_account.email
-# }
-
-# output "workload_identity_2_ksa_name" {
-#   description = "workload_identity_2 K8S SA name"
-#   value       = module.workload_identity_2.k8s_service_account_name
-# }
