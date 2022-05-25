@@ -14,7 +14,8 @@
 
 # google_client_config and kubernetes provider must be explicitly specified like the following for every cluster.
 
-## GKE 1
+
+## ASM 1
 
 data "google_client_config" "gke_1_config" {}
 
@@ -28,6 +29,7 @@ provider "kubernetes" {
   host                   = "https://${data.google_container_cluster.gke_1.endpoint}"
   token                  = data.google_client_config.gke_1_config.access_token
   cluster_ca_certificate = base64decode(data.google_container_cluster.gke_1.master_auth.0.cluster_ca_certificate)
+  proxy_url              = "http://10.128.12.8:3128"
 }
 
 module "workload_identity_1" {
@@ -56,7 +58,7 @@ module "asm_1" {
   }
 }
 
-## GKE 2
+## ASM 2
 
 data "google_client_config" "gke_2_config" {}
 
@@ -70,6 +72,7 @@ provider "kubernetes" {
   host                   = "https://${data.google_container_cluster.gke_2.endpoint}"
   token                  = data.google_client_config.gke_2_config.access_token
   cluster_ca_certificate = base64decode(data.google_container_cluster.gke_2.master_auth.0.cluster_ca_certificate)
+  proxy_url              = "http://10.128.12.8:3128"
 }
 
 module "workload_identity_2" {
