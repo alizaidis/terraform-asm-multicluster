@@ -25,9 +25,9 @@ data "google_container_cluster" "gke_1" {
 
 provider "kubernetes" {
   alias                  = "gke_1"
-  host                   = "https://${google_container_cluster.gke_1.endpoint}"
+  host                   = "https://${data.google_container_cluster.gke_1.endpoint}"
   token                  = data.google_client_config.gke_1_config.access_token
-  cluster_ca_certificate = base64decode(data.google_container_cluster.gke_1.ca_certificate)
+  cluster_ca_certificate = base64decode(data.google_container_cluster.gke_1.master_auth.0.cluster_ca_certificate)
 }
 
 module "workload_identity_1" {
@@ -67,9 +67,9 @@ data "google_container_cluster" "gke_2" {
 
 provider "kubernetes" {
   alias                  = "gke_2"
-  host                   = "https://${google_container_cluster.gke_2.endpoint}"
+  host                   = "https://${data.google_container_cluster.gke_2.endpoint}"
   token                  = data.google_client_config.gke_2_config.access_token
-  cluster_ca_certificate = base64decode(data.google_container_cluster.gke_2.ca_certificate)
+  cluster_ca_certificate = base64decode(data.google_container_cluster.gke_2.master_auth.0.cluster_ca_certificate)
 }
 
 module "workload_identity_2" {
