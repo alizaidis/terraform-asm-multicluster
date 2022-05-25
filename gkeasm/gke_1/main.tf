@@ -36,6 +36,7 @@ module "gke_1" {
   region                     = var.region_1
   zones                      = [var.zone_1]
   initial_node_count         = 4
+  service_account            = "create"
   network                    = var.vpc
   subnetwork                 = var.subnet_1_name
   ip_range_pods              = "${var.subnet_1_name}-pod-cidr"
@@ -53,9 +54,17 @@ module "gke_1" {
 }
 
 resource "google_service_account" "wi_gke_1" {
-  account_id = "wi-gke-1"
+  account_id = "gke1wi"
   project    = var.project_id
 }
+
+resource "kubernetes_namespace" "asm_tutorial_ns" {
+  metadata {
+    name = "asm-tutorial"
+  }
+  depends_on = [module.gke_1.name]
+}
+
 
 module "workload_identity_1" {
   source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
@@ -67,7 +76,7 @@ module "workload_identity_1" {
   use_existing_gcp_sa = true
   use_existing_k8s_sa = false    
   annotate_k8s_sa     = true
-  namespace           = "cnrm-system"
+  namespace           = kubernetes_namespace.asm_tutorial_ns.metadata.0.name
   project_id          = var.project_id
   roles               = ["roles/owner"]
   depends_on = [google_service_account.wi_gke_1]

@@ -20,12 +20,12 @@ output "cluster_2_name" {
   value = module.gke_2.name
 }
 
-output "workload_identity_2_email" {
-  description = "workload_identity_2 GCP service account email."
-  value       = module.workload_identity_2.gcp_service_account.email
-}
+# output "workload_identity_2_email" {
+#   description = "workload_identity_2 GCP service account email."
+#   value       = module.workload_identity_2.gcp_service_account.email
+# }
 
-output "workload_identity_2_ksa_name" {
-  description = "workload_identity_2 K8S SA name"
-  value       = module.workload_identity_2.k8s_service_account_name
-}
+# output "workload_identity_2_ksa_name" {
+#   description = "workload_identity_2 K8S SA name"
+#   value       = module.workload_identity_2.k8s_service_account_name
+# }

@@ -36,6 +36,7 @@ module "gke_2" {
   region                     = var.region_2
   zones                      = [var.zone_2]
   initial_node_count         = 4
+  service_account            = "create"
   network                    = var.vpc
   subnetwork                 = var.subnet_2_name
   ip_range_pods              = "${var.subnet_2_name}-pod-cidr"
@@ -53,8 +54,15 @@ module "gke_2" {
 }
 
 resource "google_service_account" "wi_gke_2" {
-  account_id = "wi-gke-2"
+  account_id = "gke2wi"
   project    = var.project_id
+}
+
+resource "kubernetes_namespace" "asm_tutorial_ns" {
+  metadata {
+    name = "asm-tutorial"
+  }
+  depends_on = [module.gke_2.name]
 }
 
 module "workload_identity_2" {
@@ -67,7 +75,7 @@ module "workload_identity_2" {
   use_existing_gcp_sa = true
   use_existing_k8s_sa = false    
   annotate_k8s_sa     = true
-  namespace           = "cnrm-system"
+  namespace           = kubernetes_namespace.asm_tutorial_ns.metadata.0.name
   project_id          = var.project_id
   roles               = ["roles/owner"]
   depends_on = [google_service_account.wi_gke_2]
