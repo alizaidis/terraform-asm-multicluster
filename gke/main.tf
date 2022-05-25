@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Manifest to create GKE cluster and install ASM
+data "google_compute_global_address" "build_worker_range" {
+  name = "worker-pool-range"
+}
 
 # google_client_config and kubernetes provider must be explicitly specified like the following for every cluster.
 
@@ -48,10 +50,15 @@ module "gke_1" {
       cidr_block   = "10.0.0.0/8"
       display_name = "vpc"
     },
+    {
+      cidr_block   = "${data.google_compute_global_address.build_worker_range.address}/24"
+      display_name = "cloudbuild"
+    }
   ]
   enable_private_nodes       = true
-  master_ipv4_cidr_block     = "172.16.0.0/28"
+  master_ipv4_cidr_block     = "10.200.1.0/28"
 }
+
 
 resource "google_gke_hub_membership" "membership_1" {
   provider      = google-beta
@@ -98,9 +105,13 @@ module "gke_2" {
       cidr_block   = "10.0.0.0/8"
       display_name = "vpc"
     },
+    {
+      cidr_block   = "${data.google_compute_global_address.build_worker_range.address}/24"
+      display_name = "cloudbuild"
+    }
   ]
   enable_private_nodes       = true
-  master_ipv4_cidr_block     = "172.17.0.0/28"
+  master_ipv4_cidr_block     = "10.200.2.0/28"
 }
 
 resource "google_gke_hub_membership" "membership_2" {
@@ -113,4 +124,16 @@ resource "google_gke_hub_membership" "membership_2" {
     }
   }
   depends_on = [module.gke_2.name] 
+}
+
+resource "google_compute_firewall" "cloud_build_ingress" {
+  name    = "cloug-build-ingress"
+  network = var.vpc
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+  priority = 0
+  source_ranges = ["${data.google_compute_global_address.build_worker_range.address}/24"]
 }

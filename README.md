@@ -15,7 +15,7 @@ This tutorial provides a pattern to install [Anthos Service Mesh](https://cloud.
     ```bash
     mkdir ~/asm-tutorial && cd ~/asm-tutorial && export WORKDIR=$(pwd)
     git clone https://github.com/alizaidis/terraform-asm-multicluster.git
-    cd terraform-asm-multicluster && git checkout issue-3
+    cd terraform-asm-multicluster && git checkout issue-4
     ```
 
 1. Export the `PROJECT_ID` environment variable; replace the value of `YOUR_PROJECT_ID` with that of a fresh project you created for this tutorial. The rest of this step enables the required APIs, creates an IAM policy binding for the Cloud Build service account, creates an Artifact Registry to host the Cloud Build container images and submit a Cloud Build job to create the required Google Cloud resources.

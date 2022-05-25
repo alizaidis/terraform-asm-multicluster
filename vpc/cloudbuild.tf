@@ -19,7 +19,7 @@ resource "google_compute_global_address" "build_worker_range" {
   name          = "worker-pool-range"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  prefix_length = 16
+  prefix_length = 24
   network       = module.asmvpc.network_name
 }
 

@@ -60,7 +60,7 @@ module "asmvpc" {
   }
 
   firewall_rules = [{
-    name        = "allow-all-10"
+    name        = "allow-ingress-10"
     description = "Allow Pod to Pod connectivity"
     direction   = "INGRESS"
     ranges      = ["10.0.0.0/8"]
